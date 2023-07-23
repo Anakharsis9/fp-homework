@@ -82,41 +82,38 @@ export const validateFieldN5 = ({ star, square, triangle, circle }) => {
 
   const allFiguresSameColor = all(equals(firstFigureColor))(nonWhiteFigures);
 
-  const isMinThreeSameColor = all([
-    isFiguresCountEnough,
-    allFiguresSameColor
-  ]);
-  console.log(isMinThreeSameColor(nonWhiteFigures));
-
-  return isMinThreeSameColor(nonWhiteFigures);
+  return isFiguresCountEnough && allFiguresSameColor;
 };
 
 // 6. Ровно две зеленые фигуры (одна из зелёных – это треугольник), плюс одна красная. Четвёртая оставшаяся любого доступного цвета, но не нарушающая первые два условия
 export const validateFieldN6 = ({ star, square, triangle, circle }) => {
   const figures = [star, square, triangle, circle];
+
   const triangleIsGreen = triangle === "green";
-  if (!triangleIsGreen) {
-    return false;
-  }
-  const greenFiguresCount = figures.filter(f => f === "green").length;
-  if (greenFiguresCount !== 2) {
-    return false;
-  }
-  const redFiguresCount = figures.filter(f => f === "red").length;
-  if (redFiguresCount !== 1) {
-    return false;
-  }
-  const notGreenAndRedFiguresCount = figures.filter(
-    f => f !== "red" && f !== "green"
-  ).length;
+  if (!triangleIsGreen) return false;
+
+  const greenFiguresCount = pipe(filter(equals("green")), length)(figures);
+  if (greenFiguresCount !== 2) return false;
+
+  const redFiguresCount = pipe(filter(equals("red")), length)(figures);
+  if (redFiguresCount !== 1) return false;
+
+  const notGreenAndRedFiguresCount = pipe(
+    filter(complement(equals("red"))),
+    filter(complement(equals("green"))),
+    length
+  )(figures);
+  
   return notGreenAndRedFiguresCount === 1;
 };
 
 // 7. Все фигуры оранжевые.
+
 export const validateFieldN7 = ({ star, square, triangle, circle }) => {
   const figures = [star, square, triangle, circle];
-  const isFigureOrange = color => color === "orange";
-  return figures.every(color => color === "orange");
+  const isFigureOrange = equals("orange");
+  const isAllFiguresOrange = all(isFigureOrange)(figures);
+  return isAllFiguresOrange;
 };
 
 // 8. Не красная и не белая звезда, остальные – любого цвета.
@@ -127,10 +124,13 @@ export const validateFieldN8 = ({ star, square, triangle, circle }) => {
 // 9. Все фигуры зеленые.
 export const validateFieldN9 = ({ star, square, triangle, circle }) => {
   const figures = [star, square, triangle, circle];
-  return figures.every(color => color === "green");
+  const isFigureGreen = equals("green");
+  const isAllFiguresGreen = all(isFigureGreen)(figures);
+  return isAllFiguresGreen;
 };
 
 // 10. Треугольник и квадрат одного цвета (не белого), остальные – любого цвета
 export const validateFieldN10 = ({ star, square, triangle, circle }) => {
-  return triangle === square && triangle !== "white";
+  const isTriangleAndSquareSameColor = triangle === square;
+  return isTriangleAndSquareSameColor && triangle !== "white";
 };
